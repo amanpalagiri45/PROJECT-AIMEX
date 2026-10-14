@@ -10,7 +10,6 @@
       font-family: Arial, sans-serif;
     }
 
-    /* Chat Icon Button */
     #chatToggle {
       position: fixed;
       bottom: 20px;
@@ -27,7 +26,6 @@
       z-index: 1000;
     }
 
-    /* Chat Box Popup */
     #chatBox {
       position: fixed;
       bottom: 90px;
@@ -43,7 +41,6 @@
       z-index: 999;
     }
 
-    /* Header */
     #chatHeader {
       background: #6a00ff;
       color: white;
@@ -53,7 +50,6 @@
       font-size: 16px;
     }
 
-    /* Messages Area */
     #messages {
       flex: 1;
       padding: 10px;
@@ -62,7 +58,6 @@
       background: #f7f7f7;
     }
 
-    /* User Message */
     .userMsg {
       text-align: right;
       margin: 8px 0;
@@ -77,7 +72,6 @@
       max-width: 80%;
     }
 
-    /* Bot Message */
     .botMsg {
       text-align: left;
       margin: 8px 0;
@@ -92,7 +86,6 @@
       max-width: 80%;
     }
 
-    /* Input Area */
     #inputArea {
       display: flex;
       border-top: 1px solid #ddd;
@@ -122,13 +115,9 @@
 </head>
 
 <body>
-
-  <!-- Chat Icon -->
   <button id="chatToggle">🤖</button>
 
-  <!-- Chat Box -->
   <div id="chatBox">
-
     <div id="chatHeader">AIMEX Fest Assistant 🤖</div>
 
     <div id="messages">
@@ -147,7 +136,6 @@
     const chatToggle = document.getElementById("chatToggle");
     const chatBox = document.getElementById("chatBox");
 
-    // Toggle Chat Popup
     chatToggle.onclick = () => {
       chatBox.style.display =
         chatBox.style.display === "flex" ? "none" : "flex";
@@ -157,53 +145,79 @@
     const userInput = document.getElementById("userInput");
     const messages = document.getElementById("messages");
 
+    const fallbackReplies = [
+      {
+        pattern: /hello|hi|hey|hii/i,
+        reply: "Hello! Welcome to AIMEX Fest 2026. We are excited to have you here."
+      },
+      {
+        pattern: /event|events|schedule/i,
+        reply: "AIMEX has multiple exciting events including technical, non-technical, gaming, innovation, and cultural activities."
+      },
+      {
+        pattern: /tech|technical/i,
+        reply: "The technical events include coding challenges, innovation showcases, AI sessions, and project competitions."
+      },
+      {
+        pattern: /non[- ]technical|cultural|fun/i,
+        reply: "The non-technical and cultural activities include dance, gaming, creative contests, and student engagement events."
+      },
+      {
+        pattern: /location|where|venue/i,
+        reply: "AIMEX is hosted at MITS and is designed to bring together students, faculty, and industry experts."
+      },
+      {
+        pattern: /about|aimex/i,
+        reply: "AIMEX is a vibrant technical and cultural festival that showcases innovation, creativity, and student talent."
+      }
+    ];
+
+    function getFallbackReply(message) {
+      for (const item of fallbackReplies) {
+        if (item.pattern.test(message)) {
+          return item.reply;
+        }
+      }
+      return "Thanks for your message! Visit the AIMEX website for the latest event details and updates.";
+    }
+
     async function sendMessage() {
       let msg = userInput.value.trim();
       if (!msg) return;
 
-      // Show user message
       messages.innerHTML += `
         <div class="userMsg"><span>${msg}</span></div>
       `;
 
       userInput.value = "";
 
-      // Bot typing placeholder
       messages.innerHTML += `
         <div class="botMsg"><span>Typing...</span></div>
       `;
       messages.scrollTop = messages.scrollHeight;
 
-      // Call backend
-      let response = await fetch("http://localhost:5000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg })
-      });
+      await new Promise(resolve => setTimeout(resolve, 400));
 
-      let data = await response.json();
+      const lastBotMessage = messages.lastElementChild;
+      if (lastBotMessage && lastBotMessage.classList.contains("botMsg")) {
+        lastBotMessage.remove();
+      }
 
-      // Remove typing...
-      messages.lastElementChild.remove();
-
-      // Show bot reply
+      const botReply = getFallbackReply(msg);
       messages.innerHTML += `
-        <div class="botMsg"><span>${data.reply}</span></div>
+        <div class="botMsg"><span>${botReply}</span></div>
       `;
 
       messages.scrollTop = messages.scrollHeight;
     }
 
-    // Send button click
     sendBtn.onclick = sendMessage;
 
-    // ENTER key support
     userInput.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         sendMessage();
       }
     });
   </script>
-
 </body>
 </html>
