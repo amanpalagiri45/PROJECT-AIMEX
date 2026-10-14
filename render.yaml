@@ -1,0 +1,6 @@
+static_sites:
+  - name: PROJECT-AIMEX
+    repo: amanpalagiri45/PROJECT-AIMEX
+    branch: main
+    buildCommand: ""
+    publishPath: "."
